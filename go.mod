@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/gen2brain/beeep v0.0.0-20220322123227-629384b5779c
+	github.com/mattn/go-sqlite3 v1.14.12
 	github.com/spf13/cobra v1.4.0
 )
 
