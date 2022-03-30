@@ -13,6 +13,7 @@ clean:
 	rm -f annoyme-sqlite.db
 
 dep:
+	go mod download
 	go mod vendor
 
 lint:
