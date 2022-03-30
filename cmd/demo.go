@@ -5,6 +5,7 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"github.com/DrakeAxelrod/annoyme/colors"
 	"github.com/gen2brain/beeep"
 	"github.com/spf13/cobra"
 )
@@ -12,13 +13,13 @@ import (
 // demoCmd represents the demo command
 var demoCmd = &cobra.Command{
 	Use:   "demo",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
+	Short: colors.Blue + "A brief description of your command" + colors.Reset,
+	Long: colors.Blue + `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+to quickly create a Cobra application.` + colors.Reset,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := beeep.Notify("Title", "Message body", "assets/information.png")
 		if err != nil {
