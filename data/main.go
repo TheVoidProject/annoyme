@@ -11,7 +11,7 @@ var db *sql.DB
 func OpenDatabase() error {
 	var err error
 	// temporary we will write the db to ~/.config/annoyme/* for unix and AppData/roaming/annoyme/* for windows
-	db, err = sql.Open("sqlite3", "./annoyme-sqlite.db")
+	db, err = sql.Open("sqlite3", "./bin/annoyme-sqlite.db")
 	if err != nil {
 		return err
 	}
