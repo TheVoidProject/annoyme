@@ -1,15 +1,31 @@
-/*
-Copyright © 2022 Drake Axelrod <drake@draxel.io>
-*/
-
 package main
 
 import (
-	"github.com/DrakeAxelrod/annoyme/data"
-	"github.com/DrakeAxelrod/annoyme/cmd"
+	"context"
+	"flag"
+	"log"
+	"os"
+
+	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
+const VERSION = "0.0.1"
+
+
 func main() {
-	data.OpenDatabase()
-	cmd.Execute()
+	fs := flag.NewFlagSet("notify", flag.ExitOnError)
+	// t := fs.String("t", "title", "title of the notification")
+	root := &ffcli.Command{
+		ShortUsage: "Sends a Notification",
+		ShortHelp:  "Sends a Notification",
+		FlagSet:    fs,
+		Exec: func(ctx context.Context, args []string) error {
+			return nil
+		},
+		Subcommands: []*ffcli.Command{newReminder()},
+	}
+
+	if err := root.ParseAndRun(context.Background(), os.Args[1:]); err != nil {
+		log.Fatal(err)
+	}
 }
