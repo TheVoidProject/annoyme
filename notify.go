@@ -1,17 +1,12 @@
 package main
 
 import (
-	"os"
-	"log"
-
-	n "github.com/martinlindhe/notify"
+	"github.com/gen2brain/beeep"
 )
 
 func notify(title string, body string) {
-	pwd, err := os.Getwd()
+	err := beeep.Notify(title, body, "assets/reminder.png")
 	if err != nil {
-		log.Fatal("get pwd error")
-		os.Exit(1)
+			panic(err)
 	}
-	n.Notify("AnnoyMe", title, body, pwd + "/assets/reminder.png")
 }

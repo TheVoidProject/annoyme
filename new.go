@@ -6,7 +6,7 @@ import (
 	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
-func newReminder() *ffcli.Command {
+func NewReminder() *ffcli.Command {
 	return &ffcli.Command{
 		Name: "new",
 		ShortUsage: "Create and Send a Notification",

@@ -22,7 +22,7 @@ func main() {
 		Exec: func(ctx context.Context, args []string) error {
 			return nil
 		},
-		Subcommands: []*ffcli.Command{newReminder()},
+		Subcommands: []*ffcli.Command{NewReminder()},
 	}
 
 	if err := root.ParseAndRun(context.Background(), os.Args[1:]); err != nil {
