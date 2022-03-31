@@ -15,7 +15,8 @@ func NewReminder() *ffcli.Command {
 		Exec: func(ctx context.Context, args []string) error {
 			title := getInput("invalid input", "Title")
 			message := getInput("invalid input", "Message")
-			notify(title, message)
+			delay := getIntInput("invalid input", "Delay")
+			notify(title, message, delay)
 			return nil
 		},
 	}
