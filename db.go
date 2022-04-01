@@ -10,7 +10,7 @@ import (
 
 var db *sql.DB
 
-func OpenDatabase() error {
+func openDatabase() error {
 	var err error
 	// temporary we will write the db to ~/.config/annoyme/* for unix and AppData/roaming/annoyme/* for windows
 	db, err = sql.Open("sqlite3", "./bin/annoyme-sqlite.db")
@@ -21,12 +21,15 @@ func OpenDatabase() error {
 	return db.Ping()
 }
 
-func CreateTable() {
+func createTable() {
 	createTableSQL := `CREATE TABLE IF NOT EXISTS reminder (
 		"idReminder" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		"title" TEXT,
-		"message" TEXT,
-		"level" TEXT
+		"title"       TEXT,
+		"message"     TEXT,
+		"date"        INTEGER,
+		"time"        INTEGER,
+		"repeat"      INTEGER,
+		"repeatDelay" INTEGER,
 	  );`
 
 	statement, err := db.Prepare(createTableSQL)
@@ -34,8 +37,8 @@ func CreateTable() {
 		log.Fatal(err.Error())
 	}
 
-	_, exec_err := statement.Exec()
-	if exec_err != nil {
+	_, execErr := statement.Exec()
+	if execErr != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(-1)
 	}
