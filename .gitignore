@@ -20,6 +20,5 @@ vendor/
 # Go workspace file
 go.work
 
-annoyme-sqlite.db
 bin/*
 annoyme
