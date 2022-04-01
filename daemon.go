@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -16,12 +17,13 @@ type program struct {
 }
 
 func (p *program) Start(s service.Service) error {
-	// if service.Interactive() {
-	// 	logger.Info("Running in terminal.")
-	// } else {
-	// 	logger.Info("Running under service manager.")
-	// }
-	// p.exit = make(chan struct{})
+	fmt.Println("im in start")
+	if service.Interactive() {
+		logger.Info("Running in terminal.")
+	} else {
+		logger.Info("Running under service manager.")
+	}
+	p.exit = make(chan struct{})
 
 	// Start should not block. Do the actual work async.
 	go p.run()
@@ -47,14 +49,14 @@ func (p *program) Stop(s service.Service) error {
 	return nil
 }
 
-func daemon(svcFlag string) {
-	
+func daemon() {
+	fmt.Println("hello")
 	options := make(service.KeyValue)
 	options["Restart"] = "on-success"
 	options["SuccessExitStatus"] = "1 2 8 SIGKILL"
 	svcConfig := &service.Config{
 		Name:        "annoyme",
-		DisplayName: "annoy service for sending reminders",
+		DisplayName: "annoyme",
 		Description: "System service to support annoyme system reminders via system notifications",
 		Dependencies: []string{
 			"Requires=network.target",
@@ -81,12 +83,15 @@ func daemon(svcFlag string) {
 			}
 		}
 	}()
-
-	ctrlErr := service.Control(s, svcFlag)
-	if ctrlErr != nil {
-		log.Fatal(err)
+	
+	// fmt.Println(*daemonFlag)
+	// arg := *daemonFlag
+	if len(*svcFlag) != 0 {
+		ctrlErr := service.Control(s, *svcFlag)
+		if ctrlErr != nil {
+			log.Fatal(ctrlErr)
+		}
 	}
-
 	err = s.Run()
 	if err != nil {
 		logger.Error(err)
