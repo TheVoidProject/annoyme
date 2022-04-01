@@ -14,7 +14,7 @@ import (
 // to customize
 // ============================================================== //
 
-func usage(c *ffcli.Command) string {
+func customUsage(c *ffcli.Command) string {
 	var b strings.Builder
 
 	fmt.Fprintf(&b, "USAGE\n")

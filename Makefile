@@ -1,30 +1,20 @@
-# BINARY_NAME=annoyme
+BINARY_NAME=annoyme
 
-# .PHONY: all
+.PHONY: all
 
-# dep:
-# 	go mod download
-# 	go mod vendor
+dep:
+	go mod download
+	go mod vendor
 
-# install-linter:
-# 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+build:
+	GOARCH=amd64 GOOS=darwin go build . -o ./bin/${BINARY_NAME}-darwin main.go
+	GOARCH=amd64 GOOS=linux go build . -o ./bin/${BINARY_NAME}-linux main.go
+	go build . -o ./bin/${BINARY_NAME}
 
-# lint:
-# 	golangci-lint run 
-	
-# #--enable-all
+run:
+	./bin/${BINARY_NAME}
 
+clean:
+	rm -rf bin/*
 
-# build:
-# 	GOARCH=amd64 GOOS=darwin go build -o ./bin/${BINARY_NAME}-darwin main.go
-# 	GOARCH=amd64 GOOS=linux go build -o ./bin/${BINARY_NAME}-linux main.go
-# 	go build -o ./bin/${BINARY_NAME}
-
-# run:
-# 	./bin/${BINARY_NAME}
-
-# clean:
-# 	rm -rf bin/*
-# 	rm -f annoyme-sqlite.db
-
-# all: dep install-linter lint build run clean
+all: dep build run clean

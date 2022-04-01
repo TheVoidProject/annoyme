@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
-	// "time"
+
 	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
@@ -15,19 +15,29 @@ const VERSION = "0.0.1"
 
 var (
 	rootFlagSet   = flag.NewFlagSet("annoyme", flag.ExitOnError)
-	verbose       = rootFlagSet.Bool("v", false, "increase log verbosity")
+	verboseFlag   = rootFlagSet.Bool("v", false, "increase log verbosity")
+	
+	daemonFlag		= rootFlagSet.String("daemon", "", "control the daemon process of annoyme")
 )
+// var (
+// 	daemonFlagSet = flag.NewFlagSet("daemon", flag.ExitOnError)
+// 	svcFlag 			= daemonFlagSet.String("c", "", "Control the system service. options: install, uninstall, start, stop, restart")
+// )
 
 
 func main() {
+	flag.Parsed()
 	root := &ffcli.Command{
 		ShortUsage: "annoyme [flags] subcmd [flags] <required> [<optional> ...]",
 		LongHelp: "Set reminders that persistently bug you as system messages until terminated or marked complete",
-		UsageFunc: usage,
+		UsageFunc: customUsage,
 		FlagSet:     rootFlagSet,
 		Exec: func(ctx context.Context, args []string) error {
-			if *verbose == true {
+			if *verboseFlag == true {
 				print("in verbose")
+			}
+			if len(*daemonFlag) != 0 {
+				daemon(*daemonFlag)
 			}
 			fmt.Println("args: "+ strings.Join(args, ","))
 			return nil
