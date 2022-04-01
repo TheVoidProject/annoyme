@@ -1,4 +1,4 @@
-module github.com/DrakeAxelrod/annoyme
+module github.com/TheVoidProject/annoyme
 
 go 1.18
 
