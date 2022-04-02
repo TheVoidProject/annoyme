@@ -30,38 +30,50 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	// "github.com/TheVoidProject/annoyme/pkg/colors"
 )
 
 var log = logrus.New()
 var stdout = logrus.New()
 
 var cfgFile string
+var daemonFlag string
 
 // rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
+var root = &cobra.Command{
 	Use:   "annoyme",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "annoyme [flags] subcmd [flags] <required> [<optional> ...]",
+	Long: "Set reminders that persistently bug you as system messages until terminated or marked complete",
+	Run: rootRun,
+}
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+func rootRun(cmd *cobra.Command, args []string) {
+	if len(daemonFlag) > 0 {
+		switch daemonFlag {
+		case "install":
+		case "uninstall":
+		case "start":
+		case "stop":
+		case "restart":
+		case "status":
+		default:
+			// display warning (probably need sudo)
+		}
+	}
+	cmd.Usage()
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	err := rootCmd.Execute()
+	err := root.Execute()
 	if err != nil {
 		os.Exit(1)
 	}
 }
 
 func init() {
+	root.SetUsageTemplate(usageTemplate())
 	initLoggers()
 	cobra.OnInitialize(initConfig)
 
@@ -69,11 +81,11 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.annoyme.yaml)")
+	root.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.annoyme.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().StringP("daemon", "d", "", "control the annoyme daemon options: install | uninstall | start | stop | restart | status")
+	root.Flags().StringVarP(&daemonFlag, "daemon", "d", "", "control the annoyme daemon options: install | uninstall | start | stop | restart | status")
 }
 
 // initConfig reads in config file and ENV variables if set.
