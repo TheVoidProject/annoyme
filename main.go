@@ -1,46 +1,30 @@
+/*
+Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 package main
 
-import (
-	"context"
-	"flag"
-	"fmt"
-	"log"
-	"os"
-
-
-	"github.com/peterbourgon/ff/v3/ffcli"
-)
+import "github.com/TheVoidProject/annoyme/cmd"
 
 const VERSION = "0.0.1"
 
-var (
-	rootFlagSet   = flag.NewFlagSet("annoyme", flag.ExitOnError)
-	verboseFlag   = rootFlagSet.Bool("v", false, "increase log verbosity")
-	svcFlag    = rootFlagSet.String("daemon", "", "the help string")
-)
-
-
 func main() {
-	root := &ffcli.Command{
-		ShortUsage: "annoyme [flags] subcmd [flags] <required> [<optional> ...]",
-		LongHelp: "Set reminders that persistently bug you as system messages until terminated or marked complete",
-		UsageFunc: customUsage,
-		FlagSet:     rootFlagSet,
-		Exec: func(ctx context.Context, args []string) error {
-			fmt.Println("main")
-			if len(*svcFlag) != 0 {
-				daemon()
-			}
-			// if *verboseFlag == true {
-			// 	print("in verbose")
-			// }
-			// fmt.Println("args: "+ strings.Join(args, ","))
-			return nil
-		},
-		Subcommands: []*ffcli.Command{},
-	}
-	if err := root.ParseAndRun(context.Background(), os.Args[1:]); err != nil {
-		flag.Parse()
-		log.Fatal(err)
-	}
+	cmd.Execute()
 }
