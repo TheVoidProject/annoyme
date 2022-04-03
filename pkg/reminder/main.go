@@ -23,11 +23,11 @@ func Encode(r Reminder, conn net.Conn) {
 	e.Encode(r)
 }
 
-func Decode(conn net.Conn) *Reminder {
+func Decode(conn net.Conn) Reminder {
 	r := &Reminder{}
 	d := gob.NewDecoder(conn)
 	d.Decode(r)
-	return r
+	return *r
 }
 
 func (r Reminder) Notify() error {

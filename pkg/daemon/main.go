@@ -9,7 +9,6 @@ import (
 	"syscall"
 
 	"github.com/TheVoidProject/annoyme/pkg/reminder"
-	"github.com/gen2brain/beeep"
 	d "github.com/takama/daemon"
 )
 

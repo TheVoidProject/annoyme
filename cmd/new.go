@@ -25,6 +25,7 @@ func newRun(cmd *cobra.Command, args []string) {
 		Title: title,
 		Message: msg,
 	}
+	r.Notify()
 	reminder.Encode(r, conn)
 	conn.Close()
 	fmt.Println("new called")
