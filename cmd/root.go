@@ -68,13 +68,13 @@ func Execute() {
 func init() {
 	rootCmd.SetUsageTemplate(usageTemplate())
 	initLoggers()
-	cobra.OnInitialize(initConfig)
+	// cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.annoyme.yaml)")
+	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.annoyme.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
