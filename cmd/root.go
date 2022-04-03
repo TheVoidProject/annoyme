@@ -30,7 +30,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	// "github.com/TheVoidProject/annoyme/pkg/colors"
+	"github.com/TheVoidProject/annoyme/pkg/daemon"
+
 )
 
 var log = logrus.New()
@@ -40,7 +41,7 @@ var cfgFile string
 var daemonFlag string
 
 // rootCmd represents the base command when called without any subcommands
-var root = &cobra.Command{
+var rootCmd = &cobra.Command{
 	Use:   "annoyme",
 	Short: "annoyme [flags] subcmd [flags] <required> [<optional> ...]",
 	Long: "Set reminders that persistently bug you as system messages until terminated or marked complete",
@@ -49,31 +50,23 @@ var root = &cobra.Command{
 
 func rootRun(cmd *cobra.Command, args []string) {
 	if len(daemonFlag) > 0 {
-		switch daemonFlag {
-		case "install":
-		case "uninstall":
-		case "start":
-		case "stop":
-		case "restart":
-		case "status":
-		default:
-			// display warning (probably need sudo)
-		}
+		daemon.Control(daemonFlag)
+	} else {
+		cmd.Usage()
 	}
-	cmd.Usage()
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	err := root.Execute()
+	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
 	}
 }
 
 func init() {
-	root.SetUsageTemplate(usageTemplate())
+	rootCmd.SetUsageTemplate(usageTemplate())
 	initLoggers()
 	cobra.OnInitialize(initConfig)
 
@@ -81,11 +74,11 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	root.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.annoyme.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.annoyme.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	root.Flags().StringVarP(&daemonFlag, "daemon", "d", "", "control the annoyme daemon options: install | uninstall | start | stop | restart | status")
+	rootCmd.Flags().StringVarP(&daemonFlag, "daemon", "d", "", "annoyme [--daemon|-d] install | uninstall | start | stop | status")
 }
 
 // initConfig reads in config file and ENV variables if set.

@@ -17,5 +17,6 @@ run:
 clean:
 	rm -rf bin/*
 	rm -rf logs/*
+	rm annoyme
 
 all: dep build run clean
