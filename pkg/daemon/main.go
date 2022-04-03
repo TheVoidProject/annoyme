@@ -114,16 +114,6 @@ func handleClient(client net.Conn) {
     if err != nil {
       stdlog.Println(err)
     }
-    // for {
-    //     buf := make([]byte, 4096)
-	// 			buf = append(buf, "echo: "...)
-    //     numbytes, err := client.Read(buf)
-    //     if numbytes == 0 || err != nil {
-    //         return
-    //     }
-    //     client.Write(buf[:numbytes])
-	// 	client.Write([]byte("hello world"))
-    // }
 }
 
 func init() {

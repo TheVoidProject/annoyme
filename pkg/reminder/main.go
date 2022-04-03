@@ -31,5 +31,5 @@ func Decode(conn net.Conn) Reminder {
 }
 
 func (r Reminder) Notify() error {
-	return beeep.Notify(r.Title, r.Message, "assets/reminder.png")
+	return beeep.Notify(r.Title, r.Message, "assets/icon.png")
 }
