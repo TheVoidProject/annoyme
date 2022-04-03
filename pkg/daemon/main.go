@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/TheVoidProject/annoyme/pkg/reminder"
+	"github.com/gen2brain/beeep"
 	d "github.com/takama/daemon"
 )
 
@@ -107,16 +109,22 @@ func acceptConnection(listener net.Listener, listen chan<- net.Conn) {
 }
 
 func handleClient(client net.Conn) {
-    for {
-        buf := make([]byte, 4096)
-				buf = append(buf, "echo: "...)
-        numbytes, err := client.Read(buf)
-        if numbytes == 0 || err != nil {
-            return
-        }
-        client.Write(buf[:numbytes])
-				client.Write([]byte("hello world"))
+    r := reminder.Decode(client)
+    stdlog.Println(r.Title, r.Message)
+    err := r.Notify()
+    if err != nil {
+      stdlog.Println(err)
     }
+    // for {
+    //     buf := make([]byte, 4096)
+	// 			buf = append(buf, "echo: "...)
+    //     numbytes, err := client.Read(buf)
+    //     if numbytes == 0 || err != nil {
+    //         return
+    //     }
+    //     client.Write(buf[:numbytes])
+	// 	client.Write([]byte("hello world"))
+    // }
 }
 
 func init() {
