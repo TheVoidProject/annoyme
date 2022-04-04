@@ -5,13 +5,14 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
+	// "fmt"
 	"net"
+
 	// "encoding/gob"
 
-	"github.com/spf13/cobra"
-	"github.com/TheVoidProject/annoyme/pkg/reminder"
 	"github.com/TheVoidProject/annoyme/pkg/prompt"
+	"github.com/TheVoidProject/annoyme/pkg/reminder"
+	"github.com/spf13/cobra"
 )
 
 func newRun(cmd *cobra.Command, args []string) {
@@ -19,16 +20,20 @@ func newRun(cmd *cobra.Command, args []string) {
 	if err != nil {
 			log.Fatal("Connection error", err)
 	}
-	title := prompt.GetString("invalid format", "Title")
-	msg := prompt.GetString("invalid format", "Message")
-	r := reminder.Reminder{
-		Title: title,
-		Message: msg,
-	}
-	r.Notify()
+	title := prompt.GetString("Invalid Format", "Title")
+	msg := prompt.GetString("Invalid Format", "Message")
+	time := prompt.GetTime("Invalid Time Format")
+	prompt.GetDay()
+	r := reminder.New(title, msg)
+	r.Time = time
+	// reminder.Reminder{
+	// 	Title: title,
+	// 	Message: msg,
+	// 	Time: time,
+	// }
+	// r.Notify()
 	reminder.Encode(r, conn)
 	conn.Close()
-	fmt.Println("new called")
 }
 
 // newCmd represents the new command

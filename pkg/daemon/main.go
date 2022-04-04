@@ -1,138 +1,125 @@
 package daemon
 
 import (
-	"fmt"
-	"log"
-	"net"
-	"os"
-	"os/signal"
-	"syscall"
+	// "time"
 
-	"github.com/TheVoidProject/annoyme/pkg/reminder"
-	d "github.com/takama/daemon"
+	"github.com/kardianos/service"
 )
 
-const (
+var logger service.Logger
 
-    // name of the service
-    name        = "annoymed"
-    description = "annoyme daemon that handles scheduling and sending notifications"
 
-    // port which daemon should be listen
-    port = ":9977"
-)
-
-//    dependencies that are NOT required by the service, but might be used
-var dependencies = []string{}
-
-var stdlog, errlog *log.Logger
-
-// Service has embedded daemon
-type Service struct {
-    d.Daemon
+// Program structures.
+//  Define Start and Stop methods.
+type program struct {
+	exit chan struct{}
 }
 
-// Manage by daemon commands or run the daemon
-func (service *Service) Manage(command string) (string, error) {
+func (p *program) Start(s service.Service) error {
+	if service.Interactive() {
+		logger.Info("Running in terminal.")
+	} else {
+		logger.Info("Running under service manager.")
+	}
+	p.exit = make(chan struct{})
 
-    // usage := "Usage: myservice install | uninstall | start | stop | status"
-		usage := "annoyme [--daemon|-d] install | uninstall | start | stop | status"
-
-    // if received any kind of command, do it
-    if command != "run" {
-    //     command := os.Args[2]
-			switch command {
-			case "install":
-					return service.Install("--daemon run")
-			case "uninstall":
-					return service.Remove()
-			case "start":
-					return service.Start()
-			case "stop":
-					return service.Stop()
-			case "status":
-					return service.Status()
-			default:
-					return usage, nil
-			}
-    }
-
-    // Do something, call your goroutines, etc
-
-    // Set up channel on which to send signal notifications.
-    // We must use a buffered channel or risk missing the signal
-    // if we're not ready to receive when the signal is sent.
-    interrupt := make(chan os.Signal, 1)
-    signal.Notify(interrupt, os.Interrupt, os.Kill, syscall.SIGTERM)
-
-    // Set up listener for defined host and port
-    listener, err := net.Listen("tcp", port)
-    if err != nil {
-        return "Possibly was a problem with the port binding", err
-    }
-
-    // set up channel on which to send accepted connections
-    listen := make(chan net.Conn, 100)
-    go acceptConnection(listener, listen)
-
-    // loop work cycle with accept connections or interrupt
-    // by system signal
-    for {
-        select {
-        case conn := <-listen:
-            go handleClient(conn)
-        case killSignal := <-interrupt:
-            stdlog.Println("Got signal:", killSignal)
-            stdlog.Println("Stoping listening on ", listener.Addr())
-            listener.Close()
-            if killSignal == os.Interrupt {
-                return "Daemon was interruped by system signal", nil
-            }
-            return "Daemon was killed", nil
-        }
-    }
-
-    // never happen, but need to complete code
-    return usage, nil
+	// Start should not block. Do the actual work async.
+	go p.run()
+	return nil
 }
 
-// Accept a client connection and collect it in a channel
-func acceptConnection(listener net.Listener, listen chan<- net.Conn) {
-    for {
-        conn, err := listener.Accept()
-        if err != nil {
-            continue
-        }
-        listen <- conn
-    }
+func (p *program) Stop(s service.Service) error {
+	// Any work in Stop should be quick, usually a few seconds at most.
+	logger.Info("I'm Stopping!")
+	close(p.exit)
+	return nil
 }
 
-func handleClient(client net.Conn) {
-    r := reminder.Decode(client)
-    stdlog.Println(r.Title, r.Message)
-    err := r.Notify()
-    if err != nil {
-      stdlog.Println(err)
-    }
-}
-
-func init() {
-    stdlog = log.New(os.Stdout, "", log.Ldate|log.Ltime)
-    errlog = log.New(os.Stderr, "", log.Ldate|log.Ltime)
-}
-
+// Service setup.
+//   Define service config.
+//   Create the service.
+//   Setup the logger.
+//   Handle service controls (optional).
+//   Run the service.
 func Control(cmd string) {
-    srv, err := d.New(name, description, d.SystemDaemon, dependencies...)
-    if err != nil {
-        errlog.Println("Error: ", err)
-        os.Exit(1)
-    }
+	var args [2]string;
+	args[0] = "--daemon"
+	args[1] = "run"
+	options := make(service.KeyValue)
+	options["Restart"] = "on-success"
+	options["SuccessExitStatus"] = "1 2 8 SIGKILL"
+	options["UserService"] = true
+	options["SystemdScript"] = systemdScript
+	svcConfig := &service.Config{
+		Name:        "annoyd",
+		DisplayName: "AnnoyMe",
+		Description: "annoyme daemon that handles scheduling and sending notifications",
+		Arguments: []string{`--daemon`,`run`},
+		// Dependencies: []string{
+		// 	"Requires=network.target",
+		// 	"After=network-online.target syslog.target"},
+		Option: options,
+	}
 
-    service := &Service{srv}
-    status, err := service.Manage(cmd)
-    if err != nil {
-        errlog.Println(status, "\nError: ", err)
-        os.Exit(1)
-    }
-    fmt.Println(status)
+	prg := &program{}
+	s, err := service.New(prg, svcConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	errs := make(chan error, 5)
+	logger, err = s.Logger(errs)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	go func() {
+		for {
+			err := <-errs
+			if err != nil {
+				log.Print(err)
+			}
+		}
+	}()
+
+	if cmd != "run" {
+		err := service.Control(s, cmd)
+		if err != nil {
+			log.Printf("Valid actions: %q\n", service.ControlAction)
+			log.Fatal(err)
+		}
+		return
+	}
+	err = s.Run()
+	if err != nil {
+		logger.Error(err)
+	}
 }
+
+const systemdScript = `[Unit]
+Description={{.Description}}
+ConditionFileIsExecutable={{.Path|cmdEscape}}
+{{range $i, $dep := .Dependencies}} 
+{{$dep}} {{end}}
+
+[Service]
+StartLimitInterval=5
+StartLimitBurst=10
+ExecStart={{.Path|cmdEscape}}{{range .Arguments}} {{.|cmdEscape}}{{end}}
+{{if .ChRoot}}RootDirectory={{.ChRoot|cmd}}{{end}}
+{{if .WorkingDirectory}}WorkingDirectory={{.WorkingDirectory|cmdEscape}}{{end}}
+{{if .UserName}}User={{.UserName}}{{end}}
+{{if .ReloadSignal}}ExecReload=/bin/kill -{{.ReloadSignal}} "$MAINPID"{{end}}
+{{if .PIDFile}}PIDFile={{.PIDFile|cmd}}{{end}}
+{{if and .LogOutput .HasOutputFileSupport -}}
+StandardOutput=file:/var/log/{{.Name}}.out
+StandardError=file:/var/log/{{.Name}}.err
+{{- end}}
+{{if gt .LimitNOFILE -1 }}LimitNOFILE={{.LimitNOFILE}}{{end}}
+{{if .Restart}}Restart={{.Restart}}{{end}}
+{{if .SuccessExitStatus}}SuccessExitStatus={{.SuccessExitStatus}}{{end}}
+RestartSec=120
+EnvironmentFile=-/etc/sysconfig/{{.Name}}
+
+[Install]
+WantedBy=multi-user.target
+`

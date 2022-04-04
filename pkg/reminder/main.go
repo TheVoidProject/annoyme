@@ -1,21 +1,58 @@
 package reminder
 
 import (
-	"time"
-	"net"
 	"encoding/gob"
+	"os"
+	"net"
+	"time"
+	"path/filepath"
 
+	"github.com/TheVoidProject/annoyme/pkg/logger"
 	"github.com/gen2brain/beeep"
+	"github.com/sirupsen/logrus"
 )
 
 
 type Reminder struct {
 	Title 			string
 	Message 		string
-	Datetime 		time.Time
+	Date				string
+	Time 				string
 	Recurring 	bool
 	Repeat 			int
-	Delay 			int
+	Delay 			time.Duration
+	Sound 			bool
+}
+
+var (
+	stdout logrus.Logger
+	log logrus.Logger
+)
+
+var ANNOYME_LOCAL_DIR string
+
+func init() {
+	stdout, log = logger.New("reminder")
+
+	HOME_DIR, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// AppData/Roaming/annoyme/
+	ANNOYME_LOCAL_DIR = filepath.Join(HOME_DIR, ".local", "share", "annoyme")
+}
+
+func New(t string, m string) Reminder {
+	return Reminder{
+		Title: t,
+		Message: m,
+		Date: "",
+		Time: "",
+		Recurring: false,
+		Repeat: 1,
+		Delay: 5 * time.Minute,
+		Sound: false,
+	}
 }
 
 func Encode(r Reminder, conn net.Conn) {
@@ -30,6 +67,10 @@ func Decode(conn net.Conn) Reminder {
 	return *r
 }
 
-func (r Reminder) Notify() error {
-	return beeep.Notify(r.Title, r.Message, "assets/icon.png")
+func (r Reminder) Notify() {
+	icon := filepath.Join(ANNOYME_LOCAL_DIR, "icon.png")
+	err := beeep.Notify(r.Title, r.Message, icon)
+	if err != nil {
+		log.Error(err)
+	}
 }

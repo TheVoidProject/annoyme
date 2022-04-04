@@ -24,19 +24,21 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/TheVoidProject/annoyme/pkg/daemon"
+	"github.com/TheVoidProject/annoyme/pkg/logger"
 
 )
 
-var log = logrus.New()
-var stdout = logrus.New()
-
+// var log = logrus.New()
+// var stdout = logrus.New()
+var (
+	stdout logrus.Logger
+	log logrus.Logger
+)
 var cfgFile string
 var daemonFlag string
 
@@ -67,7 +69,7 @@ func Execute() {
 
 func init() {
 	rootCmd.SetUsageTemplate(usageTemplate())
-	initLoggers()
+	stdout, log = logger.New("cmd")
 	// cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
@@ -105,22 +107,22 @@ func initConfig() {
 	}
 }
 
-func initLoggers() {
-	currentTime := time.Now()
-	logPath := filepath.Join("logs", currentTime.Format("2006-01-02_150405.log"))
-	file, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err == nil {
-		log.Out = file
-	} else {
-		log.Info("Failed to log to file, using default stderr")
-	}
+// func initLoggers() {
+// 	currentTime := time.Now()
+// 	logPath := filepath.Join("logs", currentTime.Format("2006-01-02_150405.log"))
+// 	file, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+// 	if err == nil {
+// 		log.Out = file
+// 	} else {
+// 		log.Info("Failed to log to file, using default stderr")
+// 	}
 
-	stdout.Formatter = new(logrus.TextFormatter)
-	log.Formatter = new(logrus.JSONFormatter) // json
-	// log.Formatter.(*logrus.TextFormatter).DisableColors = true    // remove colors
-	// log.Formatter.(*logrus.TextFormatter).DisableTimestamp = true // remove timestamp from test output
-	log.Level = logrus.InfoLevel // default
-	stdout.Level = logrus.InfoLevel
-	log.SetReportCaller(true)    // shows where is was called from
-	stdout.SetReportCaller(true) // shows where is was called from
-}
+// 	stdout.Formatter = new(logrus.TextFormatter)
+// 	log.Formatter = new(logrus.JSONFormatter) // json
+// 	// log.Formatter.(*logrus.TextFormatter).DisableColors = true    // remove colors
+// 	// log.Formatter.(*logrus.TextFormatter).DisableTimestamp = true // remove timestamp from test output
+// 	log.Level = logrus.InfoLevel // default
+// 	stdout.Level = logrus.InfoLevel
+// 	log.SetReportCaller(true)    // shows where is was called from
+// 	stdout.SetReportCaller(true) // shows where is was called from
+// }
