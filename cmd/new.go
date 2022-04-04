@@ -6,7 +6,10 @@ package cmd
 
 import (
 	// "fmt"
+	"log"
 	"net"
+	// "strings"
+	"time"
 
 	// "encoding/gob"
 
@@ -22,16 +25,18 @@ func newRun(cmd *cobra.Command, args []string) {
 	}
 	title := prompt.GetString("Invalid Format", "Title")
 	msg := prompt.GetString("Invalid Format", "Message")
-	time := prompt.GetTime("Invalid Time Format")
-	prompt.GetDay()
 	r := reminder.New(title, msg)
-	r.Time = time
-	// reminder.Reminder{
-	// 	Title: title,
-	// 	Message: msg,
-	// 	Time: time,
-	// }
-	// r.Notify()
+	t := prompt.GetTime("Invalid Time Format")
+	r.Time = t
+	sound := prompt.GetBool("Invalid Format must be y|n", "Should I yell?")
+	r.Sound = sound
+	shouldNag := prompt.GetBool("Invalid Format must be y|n", "Do you want me to nag you?")
+	if shouldNag {
+		repeat := prompt.GetInt("Invalid format must be an integer 1...9+", "Number of nags")
+		r.Repeat = repeat
+		interval := prompt.GetInt("Invalid format must be an integer 1...9+", "Nagging interval? [minutes]")
+		r.Delay = time.Duration(interval) * time.Minute
+	}
 	reminder.Encode(r, conn)
 	conn.Close()
 }

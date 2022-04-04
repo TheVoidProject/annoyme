@@ -7,7 +7,7 @@ import (
 	"syscall"
 	"time"
 
-	inner_logger "github.com/TheVoidProject/annoyme/pkg/logger"
+	// inner_logger "github.com/TheVoidProject/annoyme/pkg/logger"
 	"github.com/TheVoidProject/annoyme/pkg/reminder"
 	"github.com/go-co-op/gocron"
 	"github.com/sirupsen/logrus"
@@ -22,7 +22,7 @@ const port string = ":9977"
 
 
 func init() {
-	stdout, log = inner_logger.New("daemon")
+	// stdout, log = inner_logger.New("daemon")
 	scheduler = *gocron.NewScheduler(time.Now().Location())
 	scheduler.StartAsync()
 }
@@ -85,9 +85,13 @@ func handleClient(client net.Conn, schedule chan<- reminder.Reminder) {
 }
 
 func handleJob(r reminder.Reminder) {
-	// scheduler.Every(1).Day().At("18:41").LimitRunsTo(r.Repeat).Do(r.Notify)
+	scheduler.Every(1).Day().At(r.Time).LimitRunsTo(r.Repeat).Do(r.Notify)
 	// t := time.Now().Add(10 * time.Second).Format("15:04:05") 
 	// stdout.Warning(t)
-	scheduler.Every(1).Day().At(r.Time).Do(r.Notify)
+	// scheduler.Every(r.Delay).Minutes().At(r.Time).LimitRunsTo(r.Repeat).Do(r.Notify)
 	stdout.Warning(scheduler.Jobs())
 }
+
+// func nag(r reminder.Reminder) {
+
+// }

@@ -6,7 +6,9 @@ import (
 	"os"
 	"regexp"
 	"strconv"
-    // "strings"
+	"strings"
+
+	// "strings"
 
 	// "github.com/TheVoidProject/annoyme/pkg/reminder"
 	"github.com/manifoldco/promptui"
@@ -111,6 +113,39 @@ func GetTime(err_msg string) string {
         os.Exit(1)
     }
     return result
+}
+func GetBool(err_msg string, label string) bool {
+	validate := func(input string) error {
+        if strings.ToLower(input) == "y" || strings.ToLower(input) == "n" {
+            return nil
+        } else {
+            return errors.New("Not y/n")
+        }
+	}
+
+    templates := &promptui.PromptTemplates{
+        Prompt:  "{{ . }} ",
+        Valid:   "{{ . | green }} ",
+        Invalid: "{{ . | red }} ",
+        Success: "{{ . | bold }} ",
+    }
+    prompt := promptui.Prompt{
+        Label: label +" [y/n]",
+        Templates: templates,
+        Validate:  validate,
+        Pointer: promptui.PipeCursor,
+    }
+    in, err := prompt.Run()
+    result := strings.ToLower(in)
+    if err != nil {
+        fmt.Printf("Prompt failed %v\n", err)
+        os.Exit(1)
+    }
+    if result == "y" {
+        return true
+    } else {
+        return false
+    }
 }
 
 func GetDay() string {

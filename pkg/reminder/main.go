@@ -6,10 +6,11 @@ import (
 	"net"
 	"time"
 	"path/filepath"
+	"log"
 
-	"github.com/TheVoidProject/annoyme/pkg/logger"
+	// "github.com/TheVoidProject/annoyme/pkg/logger"
 	"github.com/gen2brain/beeep"
-	"github.com/sirupsen/logrus"
+	// "github.com/sirupsen/logrus"
 )
 
 
@@ -24,15 +25,15 @@ type Reminder struct {
 	Sound 			bool
 }
 
-var (
-	stdout logrus.Logger
-	log logrus.Logger
-)
+// var (
+// 	stdout logrus.Logger
+// 	log logrus.Logger
+// )
 
 var ANNOYME_LOCAL_DIR string
 
 func init() {
-	stdout, log = logger.New("reminder")
+	// stdout, log = logger.New("reminder")
 
 	HOME_DIR, err := os.UserHomeDir()
 	if err != nil {
@@ -69,8 +70,13 @@ func Decode(conn net.Conn) Reminder {
 
 func (r Reminder) Notify() {
 	icon := filepath.Join(ANNOYME_LOCAL_DIR, "icon.png")
-	err := beeep.Notify(r.Title, r.Message, icon)
+	var err error
+	if (r.Sound) {
+		err = beeep.Alert(r.Title, r.Message, icon)
+	} else {
+		err = beeep.Notify(r.Title, r.Message, icon)
+	}
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 	}
 }

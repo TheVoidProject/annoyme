@@ -25,20 +25,20 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/sirupsen/logrus"
+	// "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/TheVoidProject/annoyme/pkg/daemon"
-	"github.com/TheVoidProject/annoyme/pkg/logger"
+	// "github.com/TheVoidProject/annoyme/pkg/logger"
 
 )
 
 // var log = logrus.New()
 // var stdout = logrus.New()
-var (
-	stdout logrus.Logger
-	log logrus.Logger
-)
+// var (
+// 	stdout logrus.Logger
+// 	log logrus.Logger
+// )
 var cfgFile string
 var daemonFlag string
 
@@ -69,7 +69,7 @@ func Execute() {
 
 func init() {
 	rootCmd.SetUsageTemplate(usageTemplate())
-	stdout, log = logger.New("cmd")
+	// stdout, log = logger.New("cmd")
 	// cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
@@ -80,7 +80,7 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().StringVarP(&daemonFlag, "daemon", "d", "", "annoyme [--daemon|-d] install | uninstall | start | stop | status")
+	rootCmd.Flags().StringVarP(&daemonFlag, "daemon", "d", "", "annoyme [--daemon|-d] install | uninstall | start | stop | restart")
 }
 
 // initConfig reads in config file and ENV variables if set.
